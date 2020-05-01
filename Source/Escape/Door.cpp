@@ -18,14 +18,11 @@ UDoor::UDoor()
 // Called when the game starts
 void UDoor::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
 
-	FRotator openDoorRotation = { 0.f,90.f,0.f };
-
-	FRotator currentRotation = GetOwner()->GetActorRotation();
-
-	GetOwner()->SetActorRotation(currentRotation + openDoorRotation);
-	
+	initialYaw= GetOwner()->GetActorRotation().Yaw;
+	currentYaw = initialYaw;
+	targetYaw = initialYaw + 90.f;
 }
 
 
@@ -34,6 +31,12 @@ void UDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	currentYaw = FMath::FInterpConstantTo(currentYaw, targetYaw, DeltaTime, 45);
+	FRotator openDoorRotation = GetOwner()->GetActorRotation();
+	openDoorRotation.Yaw = currentYaw;
+
+	GetOwner()->SetActorRotation(openDoorRotation);
+
+
 }
 
