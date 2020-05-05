@@ -1,6 +1,7 @@
 // Something
 
-
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 #include "Door.h"
 #include "GameFramework/Actor.h"
 
@@ -28,6 +29,8 @@ void UDoor::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("NO PRESSURE PLATE ON %s"), *GetOwner()->GetName());
 	}
+
+	actorOpen = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -40,13 +43,26 @@ void UDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 	{		
 		OpenDoor(DeltaTime);
 	}
+	else
+	{
+		CloseDoor(DeltaTime);
+	}
 
 
 }
 
 void UDoor::OpenDoor(float DeltaTime)
 {
-	currentYaw = FMath::FInterpConstantTo(currentYaw, targetYaw, DeltaTime, 45);
+	currentYaw = FMath::FInterpConstantTo(currentYaw, targetYaw, DeltaTime, openSpeed);
+	FRotator openDoorRotation = GetOwner()->GetActorRotation();
+	openDoorRotation.Yaw = currentYaw;
+
+	GetOwner()->SetActorRotation(openDoorRotation);
+}
+
+void UDoor::CloseDoor(float DeltaTime)
+{
+	currentYaw = FMath::FInterpConstantTo(currentYaw, initialYaw, DeltaTime, closeSpeed);
 	FRotator openDoorRotation = GetOwner()->GetActorRotation();
 	openDoorRotation.Yaw = currentYaw;
 
