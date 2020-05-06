@@ -8,12 +8,12 @@
 #include "Door.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ESCAPE_API UDoor : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UDoor();
 
@@ -21,7 +21,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -30,7 +30,7 @@ public:
 	void CloseDoor(float DeltaTime);
 
 private:
-	UPROPERTY(EditAnywhere)	float targetYaw = 90.f;
+	UPROPERTY(EditAnywhere)	float openAngle = 90.f;
 	float initialYaw;
 	float currentYaw;
 
@@ -39,4 +39,6 @@ private:
 
 	UPROPERTY(EditAnywhere) int32 openSpeed = 45;
 	UPROPERTY(EditAnywhere) int32 closeSpeed = 90;
+	UPROPERTY(EditAnywhere) float doorCloseDelay = 2.f;
+	float doorLastOpened = 0.f;
 };

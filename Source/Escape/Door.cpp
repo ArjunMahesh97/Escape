@@ -23,7 +23,7 @@ void UDoor::BeginPlay()
 
 	initialYaw= GetOwner()->GetActorRotation().Yaw;
 	currentYaw = initialYaw;
-	targetYaw += initialYaw;
+	openAngle += initialYaw;
 
 	if (!pressurePlate) 
 	{
@@ -42,10 +42,14 @@ void UDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 	if (pressurePlate->IsOverlappingActor(actorOpen)) 
 	{		
 		OpenDoor(DeltaTime);
+		doorLastOpened = GetWorld()->GetTimeSeconds();
 	}
 	else
 	{
-		CloseDoor(DeltaTime);
+		if (GetWorld()->GetTimeSeconds() >= doorLastOpened + doorCloseDelay)
+		{
+			CloseDoor(DeltaTime);
+		}
 	}
 
 
@@ -53,7 +57,7 @@ void UDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 
 void UDoor::OpenDoor(float DeltaTime)
 {
-	currentYaw = FMath::FInterpConstantTo(currentYaw, targetYaw, DeltaTime, openSpeed);
+	currentYaw = FMath::FInterpConstantTo(currentYaw, openAngle, DeltaTime, openSpeed);
 	FRotator openDoorRotation = GetOwner()->GetActorRotation();
 	openDoorRotation.Yaw = currentYaw;
 
