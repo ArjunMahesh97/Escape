@@ -26,6 +26,17 @@ void UGrabber::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("No physics handle component on %s"), *GetOwner()->GetName());
 	}
+
+	inputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (inputComponent) 
+	{
+		inputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+}
+
+void UGrabber::Grab()
+{
+
 }
 
 
