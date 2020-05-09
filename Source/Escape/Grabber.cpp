@@ -1,9 +1,9 @@
 // Something
 
+#include "Grabber.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
-#include "Grabber.h"
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -31,12 +31,32 @@ void UGrabber::BeginPlay()
 	if (inputComponent) 
 	{
 		inputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		inputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 }
 
 void UGrabber::Grab()
 {
+	FVector playerViewPointLocation;
+	FRotator playerViewPointRotation;
 
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(playerViewPointLocation, playerViewPointRotation);
+
+	FVector lineTraceEnd = playerViewPointLocation + playerViewPointRotation.Vector() * reach;
+
+	FHitResult hitResult = GetPhysicsBodyInReach();
+
+	UPrimitiveComponent* componentToGrab = hitResult.GetComponent();
+
+	if (hitResult.GetActor())
+	{
+		physicsHandle->GrabComponentAtLocation(componentToGrab, NAME_None, lineTraceEnd);
+	}
+}
+
+void UGrabber::Release()
+{
+	physicsHandle->ReleaseComponent();
 }
 
 
@@ -52,7 +72,22 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	FVector lineTraceEnd = playerViewPointLocation + playerViewPointRotation.Vector() * reach;
 
-	DrawDebugLine(GetWorld(), playerViewPointLocation, lineTraceEnd, FColor(255, 0, 0), false, 0.f, 0, 5);
+	if (physicsHandle->GrabbedComponent) 
+	{	
+		physicsHandle->SetTargetLocation(lineTraceEnd);
+	}
+}
+
+FHitResult UGrabber::GetPhysicsBodyInReach()
+{
+	FVector playerViewPointLocation;
+	FRotator playerViewPointRotation;
+
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(playerViewPointLocation, playerViewPointRotation);
+
+	FVector lineTraceEnd = playerViewPointLocation + playerViewPointRotation.Vector() * reach;
+
+	//DrawDebugLine(GetWorld(), playerViewPointLocation, lineTraceEnd, FColor(255, 0, 0), false, 0.f, 0, 5);
 
 	FHitResult hit;
 	FCollisionQueryParams traceParams(FName(TEXT("")), false, GetOwner());
@@ -63,5 +98,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *hitActor->GetName());
 	}
+
+	return hit;
 }
 
