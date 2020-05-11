@@ -31,5 +31,9 @@ private:
 
 	void Grab();
 	void Release();
+	void FindPhysicsHandle();
+	void SetupInput();
 	FHitResult GetPhysicsBodyInReach();
+	FVector GetPlayerReach();
+	FVector GetPlayerPos();
 };
