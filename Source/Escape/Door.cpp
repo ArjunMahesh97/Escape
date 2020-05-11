@@ -26,7 +26,13 @@ void UDoor::BeginPlay()
 	currentYaw = initialYaw;
 	openAngle += initialYaw;
 
-	if (!pressurePlate) 
+	FindPressurePlate();
+	GetAudioComponent();
+}
+
+void UDoor::FindPressurePlate()
+{
+	if (!pressurePlate)
 	{
 		UE_LOG(LogTemp, Error, TEXT("NO PRESSURE PLATE ON %s"), *GetOwner()->GetName());
 	}
@@ -63,6 +69,13 @@ void UDoor::OpenDoor(float DeltaTime)
 	openDoorRotation.Yaw = currentYaw;
 
 	GetOwner()->SetActorRotation(openDoorRotation);
+
+	closeDoorSound = false;
+	if (!openDoorSound)
+	{
+		audioComponent->Play();
+		openDoorSound = true;
+	}
 }
 
 void UDoor::CloseDoor(float DeltaTime)
@@ -72,6 +85,13 @@ void UDoor::CloseDoor(float DeltaTime)
 	openDoorRotation.Yaw = currentYaw;
 
 	GetOwner()->SetActorRotation(openDoorRotation);
+
+	openDoorSound = false;
+	if (!closeDoorSound)
+	{
+		audioComponent->Play();
+		closeDoorSound = true;
+	}
 }
 
 float UDoor::TotalMass() 
@@ -87,5 +107,14 @@ float UDoor::TotalMass()
 	}
 
 	return totalMass;
+}
+
+void UDoor::GetAudioComponent()
+{
+	audioComponent = GetOwner()->FindComponentByClass<UAudioComponent>();
+	if (!audioComponent) 
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing audio component on %s"), *GetOwner()->GetName());
+	}
 }
 
