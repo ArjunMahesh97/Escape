@@ -1,6 +1,7 @@
 // Something
 
 #include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Door.h"
 #include "GameFramework/Actor.h"
@@ -39,8 +40,8 @@ void UDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (pressurePlate->IsOverlappingActor(actorOpen)) 
-	{		
+	if (TotalMass() >= massToOpen)
+	{
 		OpenDoor(DeltaTime);
 		doorLastOpened = GetWorld()->GetTimeSeconds();
 	}
@@ -71,5 +72,20 @@ void UDoor::CloseDoor(float DeltaTime)
 	openDoorRotation.Yaw = currentYaw;
 
 	GetOwner()->SetActorRotation(openDoorRotation);
+}
+
+float UDoor::TotalMass() 
+{
+	float totalMass = 0.f;
+
+	TArray<AActor*> overlappingActors;
+	pressurePlate->GetOverlappingActors(overlappingActors);
+
+	for (AActor* actor : overlappingActors) 
+	{
+		totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+
+	return totalMass;
 }
 
